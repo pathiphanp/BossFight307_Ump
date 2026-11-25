@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
-using Unity.Android.Gradle;
-using System;
+using UnityEngine.UI;
+using TMPro;
+using UnityEngine.SceneManagement;
 
 
 public enum StateMovement
@@ -20,6 +21,10 @@ public class HeroKnight : MonoBehaviour
     private Animator anim;
     private Rigidbody2D rb;
     private SpriteRenderer sp;
+
+    [Header("Hp")]
+    public float hp = 1;
+    public Image hpFillImage;
 
     [Header("Move")]
     [SerializeField] bool onMove;
@@ -45,6 +50,11 @@ public class HeroKnight : MonoBehaviour
     [Header("Enemy")]
     public Boss boss;
 
+    [Header("EndGame")]
+    public GameObject endGamePanal;
+    public TMP_Text textEndGame;
+    public Button playAgainBtn;
+
     void Start()
     {
         canMove = true;
@@ -53,6 +63,12 @@ public class HeroKnight : MonoBehaviour
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         sp = GetComponent<SpriteRenderer>();
+        playAgainBtn.onClick.AddListener(PlayAgainOnClick);
+    }
+
+    private void PlayAgainOnClick()
+    {
+        SceneManager.LoadScene(0);
     }
 
     // Update is called once per frame
@@ -60,8 +76,8 @@ public class HeroKnight : MonoBehaviour
     {
         Move();
         Attack();
-        Block();
-        EditPlayerLayer();
+        // Block();
+        // EditPlayerLayer();
     }
 
     #region Move
@@ -94,11 +110,11 @@ public class HeroKnight : MonoBehaviour
         // Swap direction of sprite depending on walk direction
         if (inputX > 0)
         {
-            transform.localScale = new Vector3(1,1,1);
+            transform.localScale = new Vector3(1, 1, 1);
         }
         else if (inputX < 0)
         {
-            transform.localScale = new Vector3(-1,1,1);
+            transform.localScale = new Vector3(-1, 1, 1);
         }
 
         rb.velocity = new Vector2(inputX, inputY).normalized * m_speed;
@@ -225,6 +241,27 @@ public class HeroKnight : MonoBehaviour
         else
         {
             sp.sortingLayerName = "Down";
+        }
+    }
+
+    public void TakeDamage()
+    {
+        hp -= 0.1f;
+
+        hpFillImage.fillAmount = (float)hp;
+        Debug.Log("BBBBBBBBBBBBBBBBBBBBBBBBB");
+        if (hp <= 0)
+        {
+            anim.SetTrigger("Die");
+            textEndGame.text = "You Lose";
+            endGamePanal.SetActive(true);
+            StopAllCoroutines();
+            enabled = false;
+            boss.enabled = false;
+        }
+        else
+        {
+
         }
     }
 }
